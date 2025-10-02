@@ -87,17 +87,23 @@ class AuthOptionsScreen extends StatelessWidget {
                               email: email,
                               password: password,
                             );
-
-                            await FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(cred.user!.uid)
-                                .set({
-                              'email': email,
-                              'createdAt': FieldValue.serverTimestamp(),
-                            });
                           } else {
                             rethrow;
                           }
+                        }
+
+                        final userRef = FirebaseFirestore.instance.collection('users').doc(cred.user!.uid);
+                        final userDoc = await userRef.get();
+
+                        if (!userDoc.exists) {
+                          await userRef.set({
+                            'email': cred.user!.email,
+                            'role': 'user',
+                            'username': '',
+                            'createdAt': FieldValue.serverTimestamp(),
+                          });
+                        } else if (!userDoc.data()!.containsKey('role')) {
+                          await userRef.update({'role': 'user'});
                         }
 
                         Navigator.pushReplacement(

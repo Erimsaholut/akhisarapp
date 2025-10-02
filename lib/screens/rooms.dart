@@ -24,6 +24,11 @@ class RoomsScreen extends StatelessWidget {
           }
 
           final rooms = snapshot.data!.docs;
+          rooms.sort((a, b) {
+            if ((a.data() as Map<String, dynamic>)['name'] == 'Duyuru Odası') return -1;
+            if ((b.data() as Map<String, dynamic>)['name'] == 'Duyuru Odası') return 1;
+            return 0;
+          });
 
           return ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 20),
