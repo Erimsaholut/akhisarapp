@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'chat_room.dart';
 
 class RoomsScreen extends StatelessWidget {
   const RoomsScreen({super.key});
-
-  final List<String> _rooms = const [
-    'Oda 1',
-    'Oda 2',
-    'Oda 3',
-    'Oda 4',
-    'Oda 5',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -18,28 +12,55 @@ class RoomsScreen extends StatelessWidget {
         title: const Text('Odalar'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        itemCount: _rooms.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-            child: SizedBox(
-              width: 250,
-              height: 60,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF666666),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('rooms').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('Hiç oda yok'));
+          }
+
+          final rooms = snapshot.data!.docs;
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            itemCount: rooms.length,
+            itemBuilder: (context, index) {
+              final room = rooms[index];
+              final roomName = room['name'] ?? 'Adsız Oda';
+              final roomId = room.id;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                child: SizedBox(
+                  width: 250,
+                  height: 60,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF666666),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatRoomScreen(
+                            roomId: roomId,
+                            roomName: roomName,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      roomName,
+                      style: const TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
                 ),
-                onPressed: () {
-                  debugPrint('${_rooms[index]} butonuna basıldı');
-                },
-                child: Text(
-                  _rooms[index],
-                  style: const TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
+              );
+            },
           );
         },
       ),

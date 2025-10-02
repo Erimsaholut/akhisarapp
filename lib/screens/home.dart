@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'rooms.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'login.dart';
+import 'settings.dart';
+import 'friends.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -9,6 +13,41 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('AkhisApp'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Çıkış Yap',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Çıkış Yap'),
+                    content: const Text('Oturumu kapatmak istediğine emin misin?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('İptal'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          await FirebaseAuth.instance.signOut();
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (context) => const LoginScreen()),
+                                (route) => false,
+                          );
+                        },
+                        child: const Text('Evet'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Center(
@@ -45,6 +84,42 @@ class HomeScreen extends StatelessWidget {
                   debugPrint('Direkt Mesaj pressed');
                 },
                 child: const Text('Direkt Mesaj', style: TextStyle(color: Colors.white)),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 250,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF666666),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  textStyle: const TextStyle(fontSize: 16),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const FriendsScreen()),
+                  );
+                },
+                child: const Text('Arkadaşlar', style: TextStyle(color: Colors.white)),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 250,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF666666),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  textStyle: const TextStyle(fontSize: 16),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                  );
+                },
+                child: const Text('Ayarlar', style: TextStyle(color: Colors.white)),
               ),
             ),
           ],

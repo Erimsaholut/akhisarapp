@@ -1,4 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'home.dart';
+
 
 class AuthOptionsScreen extends StatelessWidget {
   const AuthOptionsScreen({super.key});
@@ -60,8 +64,51 @@ class AuthOptionsScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF666666),
                     ),
-                    onPressed: () {
-                      debugPrint('Email & Şifre Girişi');
+                    onPressed: () async {
+                      final email = emailController.text.trim();
+                      final password = passwordController.text.trim();
+                      if (email.isEmpty || password.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Lütfen e-posta ve şifre girin')),
+                        );
+                        return;
+                      }
+
+                      try {
+                        UserCredential cred;
+                        try {
+                          cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                            email: email,
+                            password: password,
+                          );
+                        } on FirebaseAuthException catch (e) {
+                          if (e.code == 'user-not-found') {
+                            cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                              email: email,
+                              password: password,
+                            );
+
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(cred.user!.uid)
+                                .set({
+                              'email': email,
+                              'createdAt': FieldValue.serverTimestamp(),
+                            });
+                          } else {
+                            rethrow;
+                          }
+                        }
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const HomeScreen()),
+                        );
+                      } on FirebaseAuthException catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(e.message ?? 'Bir hata oluştu')),
+                        );
+                      }
                     },
                     child: const Text(
                       'Giriş Yap / Üye Ol',
