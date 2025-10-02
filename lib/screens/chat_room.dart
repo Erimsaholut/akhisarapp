@@ -21,6 +21,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   final TextEditingController _messageController = TextEditingController();
   final user = FirebaseAuth.instance.currentUser;
   String? _username;
+  String? userRole;
 
   final Map<String, String> oldschoolEmojis = {
     ':)': 'assets/emojis/smile.png',
@@ -32,8 +33,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     '8-)': 'assets/emojis/cool.png',
     '<3': 'assets/emojis/heart.png',
     '</3': 'assets/emojis/brokenheart.png',
-    ':-*': 'assets/emojis/kiss.png', // sadece bir kez
-    ':-x': 'assets/emojis/secret.png', // sadece bir kez
+    ':-*': 'assets/emojis/kiss.png',
+    ':-x': 'assets/emojis/secret.png',
     '(*)': 'assets/emojis/star.png',
     '(K)': 'assets/emojis/kissmark.png',
     ':@': 'assets/emojis/angry.png',
@@ -43,13 +44,14 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     '(roll)': 'assets/emojis/roll.png',
     '<:o)': 'assets/emojis/party.png',
     '^o)': 'assets/emojis/sarcastic.png',
-    ':\'(': 'assets/emojis/cry.png', // düzeltilmiş
+    ':\'(': 'assets/emojis/cry.png',
   };
 
   @override
   void initState() {
     super.initState();
     _fetchUsername();
+    _fetchUserRole();
   }
 
   Future<void> _fetchUsername() async {
@@ -70,6 +72,17 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     }
   }
 
+  void _fetchUserRole() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+    final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    if (doc.exists && doc.data()!.containsKey('role')) {
+      setState(() {
+        userRole = doc['role'];
+      });
+    }
+  }
+
   void _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
@@ -83,6 +96,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           'senderId': user?.uid,
           'senderEmail': user?.email,
           'senderUsername': _username ?? 'Bilinmeyen',
+          'senderRole': userRole ?? 'user',
           'timestamp': FieldValue.serverTimestamp(),
         });
 
@@ -131,6 +145,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isAnnouncementRoom = widget.roomName == 'Duyuru Odası';
+    final bool isAdmin = userRole == 'admin';
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.roomName)),
       body: Column(
@@ -202,6 +219,19 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                         final data = messageDoc.data() as Map<String, dynamic>;
                         final isMine = data['senderId'] == user?.uid;
 
+                        final senderRole = data['senderRole'] ?? 'user';
+
+                        Color usernameColor;
+                        if (senderRole == 'admin') {
+                          usernameColor = Colors.red!;
+                        } else if (isMine) {
+                          usernameColor = Colors.white70;
+                        } else {
+                          usernameColor = Colors.black87;
+                        }
+
+                        final bubbleColor = isMine ? Colors.blue[600]! : Colors.grey[300]!;
+
                         final timestamp = data['timestamp'] as Timestamp?;
                         final timeString = timestamp != null
                             ? DateFormat('HH:mm').format(timestamp.toDate())
@@ -223,9 +253,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                               ),
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: isMine
-                                    ? Colors.blue[600]
-                                    : Colors.grey[300],
+                                color: bubbleColor,
                                 borderRadius: BorderRadius.only(
                                   topLeft: const Radius.circular(12),
                                   topRight: const Radius.circular(12),
@@ -243,9 +271,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
-                                      color: isMine
-                                          ? Colors.white70
-                                          : Colors.black87,
+                                      color: usernameColor,
                                     ),
                                   ),
                                   _buildMessageText(data['text'] ?? '', isMine),
@@ -275,30 +301,39 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.emoji_emotions_outlined),
-                  onPressed: _openEmojiPicker,
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: const InputDecoration(
-                      hintText: 'Mesaj yaz...',
-                      border: OutlineInputBorder(),
+          if (isAnnouncementRoom && !isAdmin)
+            const Padding(
+              padding: EdgeInsets.all(12),
+              child: Text(
+                'Sadece yöneticiler bu odaya mesaj yazabilir.',
+                style: TextStyle(color: Colors.grey),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.emoji_emotions_outlined),
+                    onPressed: _openEmojiPicker,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: const InputDecoration(
+                        hintText: 'Mesaj yaz...',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: _sendMessage,
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

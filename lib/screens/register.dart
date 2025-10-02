@@ -73,7 +73,6 @@ class AuthOptionsScreen extends StatelessWidget {
                         );
                         return;
                       }
-
                       try {
                         UserCredential cred;
                         try {
@@ -98,12 +97,10 @@ class AuthOptionsScreen extends StatelessWidget {
                         if (!userDoc.exists) {
                           await userRef.set({
                             'email': cred.user!.email,
-                            'role': 'user',
                             'username': '',
+                            'role': 'user',
                             'createdAt': FieldValue.serverTimestamp(),
                           });
-                        } else if (!userDoc.data()!.containsKey('role')) {
-                          await userRef.update({'role': 'user'});
                         }
 
                         Navigator.pushReplacement(

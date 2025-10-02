@@ -53,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set({
         'email': emailController.text.trim(),
+        'role': 'user',   // ✅ Rol eklendi
         'createdAt': FieldValue.serverTimestamp(),
       });
 
