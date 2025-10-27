@@ -8,18 +8,22 @@ class RoomsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Bu sayfanın arka planı temadaki 'scaffoldBackgroundColor' (kBeigeBackground) olacak.
       appBar: AppBar(
         title: const Text('Odalar'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // backgroundColor: Theme.of(context).colorScheme.inversePrimary, // <-- BU SATIRI KALDIRDIK
+        // Renk ve stil artık app_theme.dart dosyasından otomatik olarak geliyor.
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('rooms').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
+            // CircularProgressIndicator da temadaki ana rengi (kOliveGreenPrimary) alacak.
             return const Center(child: CircularProgressIndicator());
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            // Metin rengi temadaki 'onBackground' (kDarkText) rengini alacak.
             return const Center(child: Text('Hiç oda yok'));
           }
 
@@ -45,7 +49,9 @@ class RoomsScreen extends StatelessWidget {
                   height: 60,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF666666),
+                      // backgroundColor: const Color(0xFF666666), // <-- BU SATIRI KALDIRDIK
+                      // Renk ve yazı rengi artık 'elevatedButtonTheme'den geliyor.
+                      // Şekil (shape) de temadan alınacak.
                     ),
                     onPressed: () {
                       Navigator.push(
@@ -60,7 +66,8 @@ class RoomsScreen extends StatelessWidget {
                     },
                     child: Text(
                       roomName,
-                      style: const TextStyle(fontSize: 18, color: Colors.white),
+                      // Sadece yazı boyutunu burada belirttik, renk temadan geliyor.
+                      style: const TextStyle(fontSize: 18),
                     ),
                   ),
                 ),

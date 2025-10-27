@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import 'rooms.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart';
@@ -11,8 +12,12 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Arka planı özel tanımlı kBeigeBackground yapmak için bu satırı değiştirdik.
+      backgroundColor: kSageGreenSecondary,
       appBar: AppBar(
+        backgroundColor: kOliveGreenPrimary,
         title: const Text('AkhisApp'),
+        // Artık 'backgroundColor' burada değil, app_theme.dart dosyasından geliyor.
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -22,20 +27,24 @@ class HomeScreen extends StatelessWidget {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
+                    // Dialog stilleri de temadan etkilenecek (örn: shape, titleTextStyle)
                     title: const Text('Çıkış Yap'),
-                    content: const Text('Oturumu kapatmak istediğine emin misin?'),
+                    content:
+                    const Text('Oturumu kapatmak istediğine emin misin?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
+                        // TextButton rengini otomatik olarak temadan (primaryColor) alacak
                         child: const Text('İptal'),
                       ),
                       TextButton(
                         onPressed: () async {
                           await FirebaseAuth.instance.signOut();
                           Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            MaterialPageRoute(
+                                builder: (context) => const LoginScreen()),
                                 (route) => false,
                           );
                         },
@@ -48,7 +57,7 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ],
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // backgroundColor: Theme.of(context).colorScheme.inversePrimary, // <-- BU SATIRI KALDIRDIK
       ),
       body: Center(
         child: Column(
@@ -58,7 +67,7 @@ class HomeScreen extends StatelessWidget {
               width: 250,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF666666),
+                  // backgroundColor: const Color(0xFF666666), // <-- TEMADAN ALINACAK
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   textStyle: const TextStyle(fontSize: 16),
                 ),
@@ -68,7 +77,8 @@ class HomeScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => const RoomsScreen()),
                   );
                 },
-                child: const Text('Odalar', style: TextStyle(color: Colors.white)),
+                // Yazı rengi (foregroundColor) artık 'elevatedButtonTheme'den geliyor
+                child: const Text('Odalar'),
               ),
             ),
             const SizedBox(height: 20),
@@ -76,14 +86,15 @@ class HomeScreen extends StatelessWidget {
               width: 250,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF666666),
+                  // backgroundColor: const Color(0xFF666666), // <-- TEMADAN ALINACAK
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   textStyle: const TextStyle(fontSize: 16),
                 ),
                 onPressed: () {
                   debugPrint('Direkt Mesaj pressed');
                 },
-                child: const Text('Direkt Mesaj', style: TextStyle(color: Colors.white)),
+                child:
+                const Text('Direkt Mesaj'), // <-- 'style' kaldırıldı
               ),
             ),
             const SizedBox(height: 20),
@@ -91,17 +102,18 @@ class HomeScreen extends StatelessWidget {
               width: 250,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF666666),
+                  // backgroundColor: const Color(0xFF666666), // <-- TEMADAN ALINACAK
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   textStyle: const TextStyle(fontSize: 16),
                 ),
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const FriendsScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const FriendsScreen()),
                   );
                 },
-                child: const Text('Arkadaşlar', style: TextStyle(color: Colors.white)),
+                child: const Text('Arkadaşlar'), // <-- 'style' kaldırıldı
               ),
             ),
             const SizedBox(height: 20),
@@ -109,17 +121,18 @@ class HomeScreen extends StatelessWidget {
               width: 250,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF666666),
+                  // backgroundColor: const Color(0xFF666666), // <-- TEMADAN ALINACAK
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   textStyle: const TextStyle(fontSize: 16),
                 ),
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const SettingsScreen()),
                   );
                 },
-                child: const Text('Ayarlar', style: TextStyle(color: Colors.white)),
+                child: const Text('Ayarlar'), // <-- 'style' kaldırıldı
               ),
             ),
           ],
@@ -128,3 +141,4 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
