@@ -1,10 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
-import 'rooms.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'login.dart';
+import '../screens/friends/friends_screen.dart';
 import 'settings.dart';
-import 'friends.dart';
+import 'rooms.dart';
+import 'login.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
