@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../theme/app_colors.dart'; // temadaki renkleri almak için eklendi
 import 'chat_room.dart';
 
 class RoomsScreen extends StatelessWidget {
@@ -8,23 +9,26 @@ class RoomsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Bu sayfanın arka planı temadaki 'scaffoldBackgroundColor' (kBeigeBackground) olacak.
+      backgroundColor: kBeigeBackground, // temadaki arka plan rengi
       appBar: AppBar(
+        backgroundColor: kOliveGreenPrimary, // temadaki AppBar rengi
         title: const Text('Odalar'),
-        // backgroundColor: Theme.of(context).colorScheme.inversePrimary, // <-- BU SATIRI KALDIRDIK
-        // Renk ve stil artık app_theme.dart dosyasından otomatik olarak geliyor.
+        centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('rooms').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // CircularProgressIndicator da temadaki ana rengi (kOliveGreenPrimary) alacak.
             return const Center(child: CircularProgressIndicator());
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            // Metin rengi temadaki 'onBackground' (kDarkText) rengini alacak.
-            return const Center(child: Text('Hiç oda yok'));
+            return const Center(
+              child: Text(
+                'Hiç oda yok',
+                style: TextStyle(color: kDarkText), // temadaki metin rengi
+              ),
+            );
           }
 
           final rooms = snapshot.data!.docs;
@@ -48,11 +52,7 @@ class RoomsScreen extends StatelessWidget {
                   width: 250,
                   height: 60,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      // backgroundColor: const Color(0xFF666666), // <-- BU SATIRI KALDIRDIK
-                      // Renk ve yazı rengi artık 'elevatedButtonTheme'den geliyor.
-                      // Şekil (shape) de temadan alınacak.
-                    ),
+                    // Stil tanımlamaya gerek yok, her şey temadan gelecek.
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -66,8 +66,7 @@ class RoomsScreen extends StatelessWidget {
                     },
                     child: Text(
                       roomName,
-                      // Sadece yazı boyutunu burada belirttik, renk temadan geliyor.
-                      style: const TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 18), // yalnızca boyut, renk temadan
                     ),
                   ),
                 ),

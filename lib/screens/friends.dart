@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'add_friend.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../theme/app_colors.dart'; // temadaki renkleri ekledik
 
 class FriendsScreen extends StatelessWidget {
   const FriendsScreen({super.key});
@@ -11,9 +12,15 @@ class FriendsScreen extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        backgroundColor: kBeigeBackground,
         appBar: AppBar(
+          backgroundColor: kOliveGreenPrimary,
           title: const Text('Arkadaşlar'),
+          centerTitle: true,
           bottom: const TabBar(
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: kCardSurface,
             tabs: [
               Tab(text: 'Arkadaşlar'),
               Tab(text: 'İstekler'),
@@ -35,7 +42,8 @@ class FriendsScreen extends StatelessWidget {
           },
           icon: const Icon(Icons.person_add),
           label: const Text('Yeni Ekle'),
-          backgroundColor: const Color(0xFF666666),
+          backgroundColor: kOliveGreenPrimary,
+          foregroundColor: Colors.white,
         ),
       ),
     );
@@ -49,7 +57,9 @@ class FriendsListTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
     if (currentUid == null) {
-      return const Center(child: Text('Giriş yapılmamış'));
+      return const Center(
+        child: Text('Giriş yapılmamış', style: TextStyle(color: kDarkText)),
+      );
     }
 
     final userDocStream = FirebaseFirestore.instance
@@ -64,7 +74,9 @@ class FriendsListTab extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const Center(child: Text('Veri bulunamadı'));
+          return const Center(
+            child: Text('Veri bulunamadı', style: TextStyle(color: kDarkText)),
+          );
         }
 
         final data = snapshot.data!.data() as Map<String, dynamic>;
@@ -74,7 +86,7 @@ class FriendsListTab extends StatelessWidget {
           return const Center(
             child: Text(
               'Henüz hiç arkadaşın yok',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(fontSize: 16, color: kSageGreenSecondary),
             ),
           );
         }
@@ -95,49 +107,64 @@ class FriendsListTab extends StatelessWidget {
                 }
 
                 final friendData =
-                    userSnapshot.data!.data() as Map<String, dynamic>;
+                userSnapshot.data!.data() as Map<String, dynamic>;
                 final friendName = friendData['username'] ?? 'Bilinmeyen';
 
-                return ListTile(
-                  leading: const Icon(Icons.person),
-                  title: Text(friendName),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                    onPressed: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Emin misin?'),
-                          content: Text('$friendName arkadaşlıktan çıkarılacak. Onaylıyor musun?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('İptal'),
+                return Card(
+                  color: kCardSurface,
+                  margin:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: ListTile(
+                    leading: const Icon(Icons.person, color: kOliveGreenPrimary),
+                    title: Text(friendName,
+                        style: const TextStyle(color: kDarkText)),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.remove_circle_outline,
+                          color: kTerracottaAccent),
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: kCardSurface,
+                            title: const Text('Emin misin?',
+                                style: TextStyle(color: kDarkText)),
+                            content: Text(
+                              '$friendName arkadaşlıktan çıkarılacak. Onaylıyor musun?',
+                              style: const TextStyle(color: kDarkText),
                             ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Evet'),
-                            ),
-                          ],
-                        ),
-                      );
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, false),
+                                child: const Text('İptal'),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, true),
+                                child: const Text('Evet'),
+                              ),
+                            ],
+                          ),
+                        );
 
-                      if (confirm == true) {
-                        final currentUid = FirebaseAuth.instance.currentUser?.uid;
-                        if (currentUid == null) return;
+                        if (confirm == true) {
+                          final currentUid =
+                              FirebaseAuth.instance.currentUser?.uid;
+                          if (currentUid == null) return;
 
-                        final usersRef = FirebaseFirestore.instance.collection('users');
+                          final usersRef =
+                          FirebaseFirestore.instance.collection('users');
 
-                        // Remove from both users' friend lists
-                        await usersRef.doc(currentUid).update({
-                          'friends': FieldValue.arrayRemove([friendUid]),
-                        });
+                          await usersRef.doc(currentUid).update({
+                            'friends': FieldValue.arrayRemove([friendUid]),
+                          });
 
-                        await usersRef.doc(friendUid).update({
-                          'friends': FieldValue.arrayRemove([currentUid]),
-                        });
-                      }
-                    },
+                          await usersRef.doc(friendUid).update({
+                            'friends': FieldValue.arrayRemove([currentUid]),
+                          });
+                        }
+                      },
+                    ),
                   ),
                 );
               },
@@ -158,7 +185,6 @@ class FriendRequestsTab extends StatelessWidget {
 
     final usersRef = FirebaseFirestore.instance.collection('users');
 
-    // Add each other as friends
     await usersRef.doc(currentUid).update({
       'friends': FieldValue.arrayUnion([requesterUid]),
       'friendRequests': FieldValue.arrayRemove([requesterUid]),
@@ -176,7 +202,6 @@ class FriendRequestsTab extends StatelessWidget {
 
     final usersRef = FirebaseFirestore.instance.collection('users');
 
-    // Remove from request lists
     await usersRef.doc(currentUid).update({
       'friendRequests': FieldValue.arrayRemove([requesterUid]),
     });
@@ -190,7 +215,9 @@ class FriendRequestsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
     if (currentUid == null) {
-      return const Center(child: Text('Giriş yapılmamış'));
+      return const Center(
+          child: Text('Giriş yapılmamış',
+              style: TextStyle(color: kDarkText)));
     }
 
     final userDocStream = FirebaseFirestore.instance
@@ -205,7 +232,9 @@ class FriendRequestsTab extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const Center(child: Text('Veri bulunamadı'));
+          return const Center(
+              child:
+              Text('Veri bulunamadı', style: TextStyle(color: kDarkText)));
         }
 
         final data = snapshot.data!.data() as Map<String, dynamic>;
@@ -215,7 +244,7 @@ class FriendRequestsTab extends StatelessWidget {
           return const Center(
             child: Text(
               'Gelen istek bulunmuyor',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(fontSize: 16, color: kSageGreenSecondary),
             ),
           );
         }
@@ -236,23 +265,32 @@ class FriendRequestsTab extends StatelessWidget {
                 }
 
                 final requesterData =
-                    userSnapshot.data!.data() as Map<String, dynamic>;
-                final requesterName = requesterData['username'] ?? 'Bilinmeyen';
+                userSnapshot.data!.data() as Map<String, dynamic>;
+                final requesterName =
+                    requesterData['username'] ?? 'Bilinmeyen';
 
-                return ListTile(
-                  title: Text(requesterName),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.check, color: Colors.green),
-                        onPressed: () => _acceptRequest(requesterUid),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
-                        onPressed: () => _rejectRequest(requesterUid),
-                      ),
-                    ],
+                return Card(
+                  color: kCardSurface,
+                  margin:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: ListTile(
+                    title: Text(requesterName,
+                        style: const TextStyle(color: kDarkText)),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon:
+                          const Icon(Icons.check, color: kOliveGreenPrimary),
+                          onPressed: () => _acceptRequest(requesterUid),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close,
+                              color: kTerracottaAccent),
+                          onPressed: () => _rejectRequest(requesterUid),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

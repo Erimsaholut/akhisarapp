@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import '../theme/app_colors.dart'; // temayı içe aktardık
 
 class ChatRoomScreen extends StatefulWidget {
   final String roomId;
@@ -92,13 +93,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         .doc(widget.roomId)
         .collection('messages')
         .add({
-          'text': text,
-          'senderId': user?.uid,
-          'senderEmail': user?.email,
-          'senderUsername': _username ?? 'Bilinmeyen',
-          'senderRole': userRole ?? 'user',
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+      'text': text,
+      'senderId': user?.uid,
+      'senderEmail': user?.email,
+      'senderUsername': _username ?? 'Bilinmeyen',
+      'senderRole': userRole ?? 'user',
+      'timestamp': FieldValue.serverTimestamp(),
+    });
 
     _messageController.clear();
   }
@@ -116,7 +117,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         } else {
           return Text(
             '$part ',
-            style: TextStyle(color: isMine ? Colors.white : Colors.black),
+            style: TextStyle(
+              color: isMine ? Colors.white : kDarkText,
+            ),
           );
         }
       }).toList(),
@@ -126,6 +129,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   void _openEmojiPicker() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: kBeigeBackground,
       builder: (context) {
         return GridView.count(
           crossAxisCount: 6,
@@ -149,7 +153,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     final bool isAdmin = userRole == 'admin';
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.roomName)),
+      backgroundColor: kBeigeBackground,
+      appBar: AppBar(
+        backgroundColor: kOliveGreenPrimary,
+        title: Text(widget.roomName),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
           Expanded(
@@ -166,38 +175,32 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 }
 
                 final messages = snapshot.data?.docs ?? [];
-
-                // Group messages by day
                 Map<String, List<QueryDocumentSnapshot>> groupedMessages = {};
+
                 for (var doc in messages) {
                   final data = doc.data() as Map<String, dynamic>;
                   final timestamp = data['timestamp'] as Timestamp?;
                   if (timestamp == null) continue;
-                  final dateKey = DateFormat(
-                    'yyyy-MM-dd',
-                  ).format(timestamp.toDate());
+                  final dateKey =
+                  DateFormat('yyyy-MM-dd').format(timestamp.toDate());
                   groupedMessages.putIfAbsent(dateKey, () => []).add(doc);
                 }
 
-                // Sort dates ascending (oldest first)
                 final sortedDates = groupedMessages.keys.toList()
                   ..sort((a, b) => a.compareTo(b));
 
                 return ListView.builder(
                   itemCount: sortedDates.fold<int>(
                     0,
-                    (count, date) => count + groupedMessages[date]!.length + 1,
+                        (count, date) => count + groupedMessages[date]!.length + 1,
                   ),
                   itemBuilder: (context, index) {
                     int currentIndex = 0;
                     for (final date in sortedDates) {
-                      // Date header index
                       if (index == currentIndex) {
                         final dateTime = DateTime.parse(date);
-                        final formattedDate = DateFormat(
-                          'MMMM d, yyyy',
-                          'en_US',
-                        ).format(dateTime);
+                        final formattedDate = DateFormat('MMMM d, yyyy', 'en_US')
+                            .format(dateTime);
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Center(
@@ -205,7 +208,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                               formattedDate,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.grey,
+                                color: kSageGreenSecondary,
                               ),
                             ),
                           ),
@@ -223,14 +226,16 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
                         Color usernameColor;
                         if (senderRole == 'admin') {
-                          usernameColor = Colors.red!;
+                          usernameColor = kTerracottaAccent;
                         } else if (isMine) {
                           usernameColor = Colors.white70;
                         } else {
-                          usernameColor = Colors.black87;
+                          usernameColor = kDarkText;
                         }
 
-                        final bubbleColor = isMine ? Colors.blue[600]! : Colors.grey[300]!;
+                        final bubbleColor = isMine
+                            ? kOliveGreenPrimary
+                            : kCardSurface;
 
                         final timestamp = data['timestamp'] as Timestamp?;
                         final timeString = timestamp != null
@@ -244,7 +249,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
                               maxWidth:
-                                  MediaQuery.of(context).size.width * 0.75,
+                              MediaQuery.of(context).size.width * 0.75,
                             ),
                             child: Container(
                               margin: const EdgeInsets.symmetric(
@@ -257,8 +262,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                 borderRadius: BorderRadius.only(
                                   topLeft: const Radius.circular(12),
                                   topRight: const Radius.circular(12),
-                                  bottomLeft: Radius.circular(isMine ? 12 : 0),
-                                  bottomRight: Radius.circular(isMine ? 0 : 12),
+                                  bottomLeft:
+                                  Radius.circular(isMine ? 12 : 0),
+                                  bottomRight:
+                                  Radius.circular(isMine ? 0 : 12),
                                 ),
                               ),
                               child: Column(
@@ -283,7 +290,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                         fontSize: 11,
                                         color: isMine
                                             ? Colors.white70
-                                            : Colors.black54,
+                                            : kSageGreenSecondary,
                                       ),
                                     ),
                                   ),
@@ -306,7 +313,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               padding: EdgeInsets.all(12),
               child: Text(
                 'Sadece yöneticiler bu odaya mesaj yazabilir.',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: kSageGreenSecondary),
               ),
             )
           else
@@ -315,7 +322,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.emoji_emotions_outlined),
+                    icon: const Icon(Icons.emoji_emotions_outlined,
+                        color: kOliveGreenPrimary),
                     onPressed: _openEmojiPicker,
                   ),
                   Expanded(
@@ -324,11 +332,15 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                       decoration: const InputDecoration(
                         hintText: 'Mesaj yaz...',
                         border: OutlineInputBorder(),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                          BorderSide(color: kOliveGreenPrimary, width: 2),
+                        ),
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.send),
+                    icon: const Icon(Icons.send, color: kOliveGreenPrimary),
                     onPressed: _sendMessage,
                   ),
                 ],

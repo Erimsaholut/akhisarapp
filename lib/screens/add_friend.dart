@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../theme/app_colors.dart'; // Tema renklerini ekledik
 
 class AddFriendScreen extends StatefulWidget {
   const AddFriendScreen({super.key});
@@ -53,7 +54,10 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
     if (currentUid == null) return;
     if (friendUid == currentUid) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kendine istek gönderemezsin')),
+        const SnackBar(
+          content: Text('Kendine istek gönderemezsin'),
+          backgroundColor: kTerracottaAccent,
+        ),
       );
       return;
     }
@@ -61,18 +65,19 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
     try {
       final userRef = FirebaseFirestore.instance.collection('users');
 
-      // Karşı tarafa istek gönder
       await userRef.doc(friendUid).update({
         'friendRequests': FieldValue.arrayUnion([currentUid]),
       });
 
-      // Kendi gönderilen istek listene ekle
       await userRef.doc(currentUid).update({
         'sentRequests': FieldValue.arrayUnion([friendUid]),
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Arkadaşlık isteği gönderildi')),
+        const SnackBar(
+          content: Text('Arkadaşlık isteği gönderildi'),
+          backgroundColor: kOliveGreenPrimary,
+        ),
       );
     } catch (e) {
       debugPrint('Arkadaşlık isteği gönderme hatası: $e');
@@ -82,8 +87,11 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kBeigeBackground,
       appBar: AppBar(
+        backgroundColor: kOliveGreenPrimary,
         title: const Text('Yeni Arkadaş Ekle'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -93,27 +101,50 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 labelText: 'Kullanıcı adıyla ara',
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: _searchUsers,
+                labelStyle: const TextStyle(color: kDarkText),
+                filled: true,
+                fillColor: kCardSurface,
+                prefixIcon: const Icon(Icons.search, color: kOliveGreenPrimary),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: kOliveGreenPrimary, width: 2),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide:
+                  BorderSide(color: kSageGreenSecondary.withOpacity(0.5)),
                 ),
               ),
+              cursorColor: kOliveGreenPrimary,
             ),
             const SizedBox(height: 20),
-            if (_isSearching) const CircularProgressIndicator(),
+            if (_isSearching)
+              const CircularProgressIndicator(color: kOliveGreenPrimary),
             if (!_isSearching && _searchResults.isEmpty)
-              const Text('Kullanıcı aramak için bir isim girin.'),
+              const Text(
+                'Kullanıcı aramak için bir isim girin.',
+                style: TextStyle(color: kSageGreenSecondary),
+              ),
             if (_searchResults.isNotEmpty)
               Expanded(
                 child: ListView.builder(
                   itemCount: _searchResults.length,
                   itemBuilder: (context, index) {
                     final user = _searchResults[index];
-                    return ListTile(
-                      title: Text(user['username']),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.person_add),
-                        onPressed: () => _addFriend(user['uid']),
+                    return Card(
+                      color: kCardSurface,
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 6),
+                      child: ListTile(
+                        leading: const Icon(Icons.person,
+                            color: kOliveGreenPrimary),
+                        title: Text(
+                          user['username'],
+                          style: const TextStyle(color: kDarkText),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.person_add,
+                              color: kOliveGreenPrimary),
+                          onPressed: () => _addFriend(user['uid']),
+                        ),
                       ),
                     );
                   },

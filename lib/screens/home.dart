@@ -12,8 +12,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Arka planı özel tanımlı kBeigeBackground yapmak için bu satırı değiştirdik.
-      backgroundColor: kSageGreenSecondary,
+      backgroundColor: kBeigeBackground,
       appBar: AppBar(
         backgroundColor: kOliveGreenPrimary,
         title: const Text('AkhisApp'),
