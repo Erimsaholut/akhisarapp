@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class EmojiPicker extends StatelessWidget {
 
-  // 1. Haritayı buraya 'static const' olarak taşıdık
   static const Map<String, String> oldschoolEmojis = {
     ':)': 'assets/emojis/smile.png',
     ':(': 'assets/emojis/sad.png',
@@ -38,7 +37,6 @@ class EmojiPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.count(
       crossAxisCount: 6,
-      // 3. Doğrudan 'oldschoolEmojis' sabitini kullanın
       children: oldschoolEmojis.entries.map((entry) {
         return IconButton(
           icon: Image.asset(entry.value),

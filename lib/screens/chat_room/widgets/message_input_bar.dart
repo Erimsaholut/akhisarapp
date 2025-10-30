@@ -1,5 +1,5 @@
+import '../../../theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import '../../../theme/app_colors.dart'; // Tema import yolunu güncelleyin
 
 class MessageInputBar extends StatelessWidget {
   final TextEditingController controller;
@@ -20,8 +20,10 @@ class MessageInputBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.emoji_emotions_outlined,
-                color: kOliveGreenPrimary),
+            icon: const Icon(
+              Icons.emoji_emotions_outlined,
+              color: kOliveGreenPrimary,
+            ),
             onPressed: onEmojiPressed,
           ),
           Expanded(

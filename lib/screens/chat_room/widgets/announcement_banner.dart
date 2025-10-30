@@ -1,11 +1,7 @@
+import '../../../theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-// Tema dosyanızın yolu projenizin yapısına göre değişebilir
-// Muhtemelen bu yoldur:
-import '../../../theme/app_colors.dart';
-
 class AnnouncementBanner extends StatelessWidget {
-  // 'const' constructor, 'Not a constant expression' hatasını çözer
   const AnnouncementBanner({super.key});
 
   @override

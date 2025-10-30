@@ -1,14 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
-import '../../theme/app_colors.dart'; // Tema yolunu güncelleyin
-
-// Yeni ayırdığımız widget'ları import ediyoruz
-import 'widgets/message_list.dart';
-import 'widgets/message_input_bar.dart';
 import 'widgets/announcement_banner.dart';
+import 'widgets/message_input_bar.dart';
+import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
+import 'widgets/message_list.dart';
 import 'widgets/emoji_picker.dart';
+import 'package:intl/intl.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   final String roomId;
@@ -29,9 +27,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   final user = FirebaseAuth.instance.currentUser;
   String? _username;
   String? userRole;
-
-  // 1. Emoji LİSTESİNİ BURADAN SİLDİK
-  // Artık 'emoji_picker.dart' dosyası içinde 'static const' olarak duruyor.
 
   @override
   void initState() {
@@ -95,10 +90,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       context: context,
       backgroundColor: kBeigeBackground,
       builder: (context) {
-        // Artık public EmojiPicker widget'ını kullanıyoruz
         return EmojiPicker(
-          // 2. 'emojis:' PARAMETRESİNİ BURADAN SİLDİK
-          // (Bu, hataya neden oluyordu)
           onEmojiSelected: (key) {
             _messageController.text += ' $key';
             Navigator.pop(context);
@@ -113,12 +105,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     final bool isAdmin = userRole == 'admin';
 
     if (isAnnouncementRoom && !isAdmin) {
-      // Artık public AnnouncementBanner widget'ını kullanıyoruz
-      // 3. 'const' ifadesini geri ekledik
-      // (Bunun çalışması için announcement_banner.dart dosyasındaki constructor'a 'const' eklediğinizden emin olun)
       return const AnnouncementBanner();
     } else {
-      // Artık public MessageInputBar widget'ını kullanıyoruz
       return MessageInputBar(
         controller: _messageController,
         onSendPressed: _sendMessage,
@@ -127,8 +115,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     }
   }
 
-  // --- ANA BUILD METODU ---
-  // Artık çok daha temiz!
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,12 +127,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       body: Column(
         children: [
           Expanded(
-            // Artık public MessageList widget'ını kullanıyoruz
             child: MessageList(
               roomId: widget.roomId,
               currentUserId: user?.uid,
-              // 4. 'oldschoolEmojis:' PARAMETRESİNİ BURADAN SİLDİK
-              // (Bu, hataya neden oluyordu)
             ),
           ),
           _buildBottomBar(context),

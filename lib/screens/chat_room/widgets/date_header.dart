@@ -1,9 +1,9 @@
+import '../../../theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../theme/app_colors.dart'; // Tema import yolunu güncelleyin
 
 class DateHeader extends StatelessWidget {
-  final String date; // 'yyyy-MM-dd' formatında
+  final String date;
   const DateHeader({super.key, required this.date});
 
   @override
