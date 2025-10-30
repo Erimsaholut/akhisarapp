@@ -7,13 +7,11 @@ import 'message_bubble.dart';
 class MessageList extends StatelessWidget {
   final String roomId;
   final String? currentUserId;
-  final Map<String, String> oldschoolEmojis;
 
   const MessageList({
     super.key,
     required this.roomId,
     required this.currentUserId,
-    required this.oldschoolEmojis,
   });
 
   @override
@@ -33,6 +31,7 @@ class MessageList extends StatelessWidget {
         final messages = snapshot.data?.docs ?? [];
         Map<String, List<QueryDocumentSnapshot>> groupedMessages = {};
 
+        // Mesajları tarihe göre grupla
         for (var doc in messages) {
           final data = doc.data() as Map<String, dynamic>;
           final timestamp = data['timestamp'] as Timestamp?;
@@ -44,6 +43,7 @@ class MessageList extends StatelessWidget {
         final sortedDates = groupedMessages.keys.toList()
           ..sort((a, b) => a.compareTo(b));
 
+        // Listeyi tarih başlıklarıyla birlikte oluştur
         return ListView.builder(
           itemCount: sortedDates.fold<int>(
             0,
@@ -52,21 +52,23 @@ class MessageList extends StatelessWidget {
           itemBuilder: (context, index) {
             int currentIndex = 0;
             for (final date in sortedDates) {
+              // Tarih başlığını ekle
               if (index == currentIndex) {
-                return DateHeader(date: date); // Değişti
+                return DateHeader(date: date);
               }
               currentIndex++;
 
+              // Mesajları ekle
               final dayMessages = groupedMessages[date]!;
               if (index < currentIndex + dayMessages.length) {
                 final messageDoc = dayMessages[index - currentIndex];
                 final data = messageDoc.data() as Map<String, dynamic>;
                 final isMine = data['senderId'] == currentUserId;
 
-                return MessageBubble( // Değişti
+                // MessageBubble'a 'oldschoolEmojis' parametresi verilmiyor.
+                return MessageBubble(
                   data: data,
                   isMine: isMine,
-                  oldschoolEmojis: oldschoolEmojis,
                 );
               }
               currentIndex += dayMessages.length;

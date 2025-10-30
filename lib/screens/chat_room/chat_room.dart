@@ -30,30 +30,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   String? _username;
   String? userRole;
 
-  // Emoji listesi burada kalabilir, çünkü state'in bir parçası
-  final Map<String, String> oldschoolEmojis = {
-    ':)': 'assets/emojis/smile.png',
-    ':(': 'assets/emojis/sad.png',
-    ':P': 'assets/emojis/tongue.png',
-    ';)': 'assets/emojis/wink.png',
-    ':D': 'assets/emojis/laugh.png',
-    ':-O': 'assets/emojis/surprised.png',
-    '8-)': 'assets/emojis/cool.png',
-    '<3': 'assets/emojis/heart.png',
-    '</3': 'assets/emojis/brokenheart.png',
-    ':-*': 'assets/emojis/kiss.png',
-    ':-x': 'assets/emojis/secret.png',
-    '(*)': 'assets/emojis/star.png',
-    '(K)': 'assets/emojis/kissmark.png',
-    ':@': 'assets/emojis/angry.png',
-    ':[': 'assets/emojis/devil.png',
-    ':-[': 'assets:emojis/vampire.png',
-    ':p': 'assets/emojis/sick.png',
-    '(roll)': 'assets/emojis/roll.png',
-    '<:o)': 'assets/emojis/party.png',
-    '^o)': 'assets/emojis/sarcastic.png',
-    ':\'(': 'assets/emojis/cry.png',
-  };
+  // 1. Emoji LİSTESİNİ BURADAN SİLDİK
+  // Artık 'emoji_picker.dart' dosyası içinde 'static const' olarak duruyor.
 
   @override
   void initState() {
@@ -63,7 +41,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   }
 
   // --- Veri Çekme ve Gönderme Fonksiyonları ---
-  // (Bunlar state'e ait olduğu için burada kalmalı)
 
   Future<void> _fetchUsername() async {
     final uid = user?.uid;
@@ -120,7 +97,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       builder: (context) {
         // Artık public EmojiPicker widget'ını kullanıyoruz
         return EmojiPicker(
-          emojis: oldschoolEmojis,
+          // 2. 'emojis:' PARAMETRESİNİ BURADAN SİLDİK
+          // (Bu, hataya neden oluyordu)
           onEmojiSelected: (key) {
             _messageController.text += ' $key';
             Navigator.pop(context);
@@ -136,6 +114,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
     if (isAnnouncementRoom && !isAdmin) {
       // Artık public AnnouncementBanner widget'ını kullanıyoruz
+      // 3. 'const' ifadesini geri ekledik
+      // (Bunun çalışması için announcement_banner.dart dosyasındaki constructor'a 'const' eklediğinizden emin olun)
       return const AnnouncementBanner();
     } else {
       // Artık public MessageInputBar widget'ını kullanıyoruz
@@ -165,7 +145,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             child: MessageList(
               roomId: widget.roomId,
               currentUserId: user?.uid,
-              oldschoolEmojis: oldschoolEmojis,
+              // 4. 'oldschoolEmojis:' PARAMETRESİNİ BURADAN SİLDİK
+              // (Bu, hataya neden oluyordu)
             ),
           ),
           _buildBottomBar(context),

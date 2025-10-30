@@ -164,7 +164,6 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Arama Çubuğu
             Row(
               children: [
                 Expanded(

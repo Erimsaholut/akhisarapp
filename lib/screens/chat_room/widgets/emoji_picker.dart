@@ -31,7 +31,6 @@ class EmojiPicker extends StatelessWidget {
 
   const EmojiPicker({
     super.key,
-    // 2. 'emojis' parametresini buradan kaldırın
     required this.onEmojiSelected,
   });
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../theme/app_colors.dart'; // temadaki renkleri almak için eklendi
-import 'chat_room.dart';
+import 'chat_room/chat_room.dart';
 
 class RoomsScreen extends StatelessWidget {
   const RoomsScreen({super.key});
